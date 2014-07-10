@@ -2,6 +2,8 @@ package main
 
 import (
   "github.com/codegangsta/cli"
+  "os"
+  "runtime"
 )
 
 var Commands = []cli.Command{
@@ -78,4 +80,31 @@ func doDelete (c *cli.Context) {}
 
 func doSwitch (c *cli.Context) {}
 
-func doList (c *cli.Context) {}
+func doList (c *cli.Context) {
+  homeDir := getUserHomeDir() + "/dotfiles"
+
+  if isFileExist(homeDir) {
+    println("home directory exists")
+  }
+}
+
+func getUserHomeDir () string {
+  if runtime.GOOS == "windows" {
+    home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+    if home == "" {
+      home = os.Getenv("USERPROFILE")
+    }
+
+    return home
+  }
+
+  return os.Getenv("HOME")
+}
+
+func isFileExist (filename string) bool {
+  if _, err := os.Stat(filename); err == nil {
+    return true
+  } else {
+    return false
+  }
+}
