@@ -4,6 +4,9 @@ import (
   "github.com/codegangsta/cli"
   "os"
   "runtime"
+  "io/ioutil"
+  "regexp"
+  "strings"
 )
 
 var Commands = []cli.Command{
@@ -84,7 +87,14 @@ func doList (c *cli.Context) {
   homeDir := getUserHomeDir() + "/dotfiles"
 
   if isFileExist(homeDir) {
-    println("home directory exists")
+    files, _ := ioutil.ReadDir(homeDir)
+    for _, f := range files {
+      fileName := f.Name()
+
+      if matched, _ := regexp.MatchString(".*\\.gitconfig$", fileName); matched {
+        println(strings.Replace(fileName, ".gitconfig", "", 1))
+      }
+    }
   }
 }
 
