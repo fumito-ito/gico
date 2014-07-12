@@ -75,7 +75,16 @@ var commandList = cli.Command{
   Action: doList,
 }
 
-func doInit (c *cli.Context) {}
+func doInit (c *cli.Context) {
+  homeDir := getUserHomeDir() + "/dotfiles"
+
+  if !isFileExist(homeDir) {
+    println("Create home directory ?")
+    os.Mkdir(homeDir, 0755)
+  }
+
+  println("initializing global .gitconfig in " + homeDir + "...")
+}
 
 func doCreate (c *cli.Context) {}
 
