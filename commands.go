@@ -7,6 +7,8 @@ import (
   "io/ioutil"
   "regexp"
   "strings"
+  "log"
+  "fmt"
 )
 
 var Commands = []cli.Command{
@@ -75,12 +77,31 @@ var commandList = cli.Command{
   Action: doList,
 }
 
+var okay = []string{"y", "Y", "yes", "Yes", "YES"}
+var no = []string{"n", "Y", "no", "No", "NO"}
+
 func doInit (c *cli.Context) {
   homeDir := getUserHomeDir() + "/dotfiles"
+  var response string
 
   if !isFileExist(homeDir) {
-    println("Create home directory ?")
-    os.Mkdir(homeDir, 0755)
+    println("Can I create home directory in " + homeDir + " ? [Y/n]")
+    _, err := fmt.Scanln(&response)
+
+    if err != nil {
+      log.Fatal(err)
+    }
+
+    if containString(okay, response) {
+      os.Mkdir(homeDir, 0755)
+      println(homeDir + "is created")
+    } else if containString(no, response) {
+      println("This command must have " + homeDir + ", please try again")
+      return
+    } else {
+      println("please type keys yes or no")
+      return
+    }
   }
 
   println("initializing global .gitconfig in " + homeDir + "...")
@@ -126,4 +147,18 @@ func isFileExist (filename string) bool {
   } else {
     return false
   }
+}
+
+func findString (slice []string, element string) int {
+  for index, elem := range slice {
+    if elem == element {
+      return index
+    }
+  }
+
+  return -1
+}
+
+func containString (slice []string, element string) bool {
+  return !(findString(slice, element) == -1)
 }
