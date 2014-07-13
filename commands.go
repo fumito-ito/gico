@@ -114,15 +114,15 @@ func doDelete (c *cli.Context) {}
 func doSwitch (c *cli.Context) {}
 
 func doList (c *cli.Context) {
-  homeDir := getUserHomeDir() + "/dotfiles"
+  homeDir := getUserHomeDir()
 
-  if isFileExist(homeDir) {
+  if isDirExist(homeDir) {
     files, _ := ioutil.ReadDir(homeDir)
     for _, f := range files {
       fileName := f.Name()
 
-      if matched, _ := regexp.MatchString(".*\\.gitconfig$", fileName); matched {
-        println(strings.Replace(fileName, ".gitconfig", "", 1))
+      if matched, _ := regexp.MatchString("^\\.gitconfig\\..*$", fileName); matched {
+        println(strings.Replace(fileName, ".gitconfig.", "", 1))
       }
     }
   }
@@ -141,8 +141,16 @@ func getUserHomeDir () string {
   return os.Getenv("HOME")
 }
 
-func isFileExist (filename string) bool {
-  if _, err := os.Stat(filename); err == nil {
+func isFileExist (fileName string) bool {
+  if fileInfo, err := os.Stat(fileName); err == nil && !fileInfo.IsDir() {
+    return true
+  } else {
+    return false
+  }
+}
+
+func isDirExist (dirName string) bool {
+  if fileInfo, err := os.Stat(dirName); err == nil && fileInfo.IsDir() {
     return true
   } else {
     return false
