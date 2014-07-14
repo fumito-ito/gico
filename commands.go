@@ -15,7 +15,7 @@ var Commands = []cli.Command{
   commandInit,
   commandCreate,
   commandDelete,
-  commandSwitch,
+  commandUse,
   commandList,
 }
 
@@ -51,9 +51,9 @@ var commandDelete = cli.Command{
   Action: doDelete,
 }
 
-var commandSwitch = cli.Command{
-  Name: "switch",
-  Usage: "Switch .gitconfig",
+var commandUse = cli.Command{
+  Name: "use",
+  Usage: "use envname",
   Description: `
   Switch your .gitconfig environment.
   This command switches your .gitconfig environment with [env name].
@@ -64,7 +64,7 @@ var commandSwitch = cli.Command{
   
   It will return default .gitconfig.
   `,
-  Action: doSwitch,
+  Action: doUse,
 }
 
 var commandList = cli.Command{
@@ -111,7 +111,7 @@ func doCreate (c *cli.Context) {}
 
 func doDelete (c *cli.Context) {}
 
-func doSwitch (c *cli.Context) {}
+func doUse (c *cli.Context) {}
 
 func doList (c *cli.Context) {
   homeDir := getUserHomeDir()
