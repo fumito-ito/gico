@@ -7,9 +7,13 @@ import (
   "io/ioutil"
   "regexp"
   "strings"
+  "text/template"
   "log"
-  "fmt"
 )
+
+type Configuration struct {
+  HomeDir string
+}
 
 var Commands = []cli.Command{
   commandInit,
@@ -27,6 +31,9 @@ var commandInit = cli.Command{
   This command creates $HOME/dotfiles directory if it doesn't exist.
   `,
   Action: doInit,
+  Flags: []cli.Flag {
+    cli.StringFlag { Name: "dir, d", Value: "~", Usage: "Directory where you put .gitconfigs" },
+  },
 }
 
 var commandCreate = cli.Command{
@@ -77,34 +84,18 @@ var commandList = cli.Command{
   Action: doList,
 }
 
+// variables
+
 var okay = []string{"y", "Y", "yes", "Yes", "YES"}
 var no = []string{"n", "Y", "no", "No", "NO"}
+var gitConfTemplate = template.Must(parseAssets(".gitconf", "templates/.gitconf.tmpl"))
+var gitConf = Source {
+  Name: ".gitconf",
+  Template: *gitConfTemplate,
+}
 
 func doInit (c *cli.Context) {
-  homeDir := getUserHomeDir() + "/dotfiles"
-  var response string
-
-  if !isFileExist(homeDir) {
-    println("Can I create home directory in " + homeDir + " ? [Y/n]")
-    _, err := fmt.Scanln(&response)
-
-    if err != nil {
-      log.Fatal(err)
-    }
-
-    if containString(okay, response) {
-      os.Mkdir(homeDir, 0755)
-      println(homeDir + "is created")
-    } else if containString(no, response) {
-      println("This command must have " + homeDir + ", please try again")
-      return
-    } else {
-      println("please type keys yes or no")
-      return
-    }
-  }
-
-  println("initializing global .gitconfig in " + homeDir + "...")
+  setUserHomeDir(c.String("dir"))
 }
 
 func doCreate (c *cli.Context) {}
@@ -114,7 +105,7 @@ func doDelete (c *cli.Context) {}
 func doUse (c *cli.Context) {}
 
 func doList (c *cli.Context) {
-  homeDir := getUserHomeDir()
+  homeDir := getOsHomeDir() //getUserHomeDir()
 
   if isDirExist(homeDir) {
     files, _ := ioutil.ReadDir(homeDir)
@@ -128,7 +119,25 @@ func doList (c *cli.Context) {
   }
 }
 
-func getUserHomeDir () string {
+func setUserHomeDir (homeDir ...string) {
+  if len(homeDir) < 1 {
+    homeDir = append(homeDir, getOsHomeDir())
+  }
+
+  config := Configuration { homeDir[0] }
+
+  if err := gitConf.generate(getOsHomeDir(), config); err == nil {
+    println("~/.gitconf is created")
+  } else {
+    log.Fatal(err)
+  }
+
+}
+
+// func getUserHomeDir () string {
+// }
+
+func getOsHomeDir () string {
   if runtime.GOOS == "windows" {
     home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
     if home == "" {
@@ -139,6 +148,15 @@ func getUserHomeDir () string {
   }
 
   return os.Getenv("HOME")
+}
+
+func parseAssets (name string, path string) (*template.Template, error) {
+  src, err := Asset(path)
+  if err != nil {
+    return nil, err
+  }
+
+  return template.New(name).Parse(string(src))
 }
 
 func isFileExist (fileName string) bool {
