@@ -110,7 +110,7 @@ func doDelete (c *cli.Context) {}
 func doUse (c *cli.Context) {}
 
 func doList (c *cli.Context) {
-  homeDir := getOsHomeDir() //getUserHomeDir()
+  homeDir := getUserHomeDir()
 
   if isDirExist(homeDir) {
     files, _ := ioutil.ReadDir(homeDir)
