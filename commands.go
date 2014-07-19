@@ -9,6 +9,7 @@ import (
   "strings"
   "text/template"
   "log"
+  "encoding/json"
 )
 
 type Configuration struct {
@@ -98,7 +99,11 @@ func doInit (c *cli.Context) {
   setUserHomeDir(c.String("dir"))
 }
 
-func doCreate (c *cli.Context) {}
+func doCreate (c *cli.Context) {
+  homeDir := getUserHomeDir()
+
+  println(homeDir)
+}
 
 func doDelete (c *cli.Context) {}
 
@@ -134,8 +139,23 @@ func setUserHomeDir (homeDir ...string) {
 
 }
 
-// func getUserHomeDir () string {
-// }
+func getUserHomeDir () string {
+  file, err := ioutil.ReadFile(getOsHomeDir() + "/.gitconf")
+
+  if err != nil {
+    println("Cannot open file ~/.gitconf", err.Error())
+    os.Exit(1)
+  }
+
+  var config Configuration
+  e := json.Unmarshal(file, &config)
+  if e != nil {
+    println("Cannot parse .gitconf", err.Error())
+    os.Exit(1)
+  }
+
+  return config.HomeDir
+}
 
 func getOsHomeDir () string {
   if runtime.GOOS == "windows" {
