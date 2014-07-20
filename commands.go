@@ -37,7 +37,7 @@ var commandInit = cli.Command{
   `,
   Action: doInit,
   Flags: []cli.Flag {
-    cli.StringFlag { Name: "dir, d", Value: "~", Usage: "Directory where you put .gitconfigs" },
+    cli.StringFlag { Name: "dir, d", Value: getOsHomeDir(), Usage: "Directory where you put .gitconfigs" },
   },
 }
 
