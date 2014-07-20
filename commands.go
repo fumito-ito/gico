@@ -12,14 +12,6 @@ import (
   "encoding/json"
 )
 
-type Configuration struct {
-  HomeDir string
-}
-
-type Gitconfig struct {
-  EnvName string
-}
-
 var Commands = []cli.Command{
   commandInit,
   commandCreate,
@@ -94,6 +86,14 @@ var okay = []string{"y", "Y", "yes", "Yes", "YES"}
 var no = []string{"n", "Y", "no", "No", "NO"}
 
 // templates
+type Configuration struct {
+  HomeDir string
+}
+
+type Gitconfig struct {
+  EnvName string
+}
+
 // .gitconf
 var gitConfTemplate = template.Must(ParseAsset(".gitconf", "templates/.gitconf.tmpl"))
 var gitConf = Source {
@@ -121,7 +121,42 @@ var gitconfigLocal = Source {
 
 // methods
 func doInit (c *cli.Context) {
-  setUserHomeDir(c.String("dir"))
+  // set user home directory
+  home_dir := setUserHomeDir(c.String("dir"))
+  config_file := getOsHomeDir() + "/.gitconfig" 
+
+  // rename user global .gitconfig to .gitconfig.local if it exists
+  if file, err := ioutil.ReadFile(config_file); err == nil && isFileExist(config_file) {
+    // copy .gitconfig to .gitconfig.local
+    if error := ioutil.WriteFile(home_dir + "/.gitconfig.local", file, 0755); error != nil {
+      // errors
+      println("Cannot create file: " + home_dir + "/.gitconfig.local")
+      log.Fatal(error)
+    }
+  } else {
+    // create new .gitconfig.local file
+    if error := gitconfigLocal.generate(getUserHomeDir(), ""); error != nil {
+      // errors
+      println("Cannot create file: " + home_dir + "/.gitconfig.local")
+      log.Fatal(error)
+    }
+  }
+
+  // create .gitconfig (to include other files) and .gitconfig_global for user global
+  if err := gitconfigGlobal.generate(getOsHomeDir(), ""); err == nil {
+    println("~/.gitconfig_global is created")
+  } else {
+    println("Cannot create ~/.gitconfig_global")
+    log.Fatal(err)
+  }
+
+  envConf := Gitconfig { ".gitconfig.local" }
+  if err := gitconfig.generate(getOsHomeDir(), envConf); err == nil {
+    println("~/.gitconfig is created")
+  } else {
+    println("Cannot create ~/.gitconfig")
+    log.Fatal(err)
+  }
 }
 
 func doCreate (c *cli.Context) {
