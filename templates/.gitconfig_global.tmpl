@@ -1,0 +1,49 @@
+[color]
+    status = auto
+    diff = auto
+    branch = auto
+    interactive = auto
+    grep = auto
+[push]
+    default = tracking
+[core]
+    excludesfile = ~/.gitignore_global
+    autocrlf = input
+[alias]
+    # basics
+    st = status
+    sh = show
+    so = remote show origin
+    ft = fetch
+    up = pull --rebase
+    rbm = rebase master
+    a = add
+    ca = commit -a
+    cam = commit -a --amend
+    co = checkout
+    # about branch
+    b = branch
+    ba = branch -a
+    bm = branch --merged
+    bn = branch --no-merged
+    # about log
+    wc = whatchanged
+    l = log
+    ls = log --stat
+    lp = log -p
+    lg = log --graph --date=short --pretty=format:'%Cgreen%h %cd %Cblue%cn %Creset%s'
+    # about diff
+    d = diff
+    dm = diff master
+    dw = diff --color-words
+    dc = diff --cached
+    ds = diff --staged
+    d1 = diff HEAD~
+    d2 = diff HEAD~~
+    d3 = diff HEAD~~~
+    d4 = diff HEAD~~~~
+    d5 = diff HEAD~~~~~
+    d10 = diff HEAD~~~~~~~~~~
+    # about grep
+    g = grep
+    gn = grep -n

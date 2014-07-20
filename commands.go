@@ -16,6 +16,10 @@ type Configuration struct {
   HomeDir string
 }
 
+type Gitconfig struct {
+  EnvName string
+}
+
 var Commands = []cli.Command{
   commandInit,
   commandCreate,
@@ -89,12 +93,34 @@ var commandList = cli.Command{
 
 var okay = []string{"y", "Y", "yes", "Yes", "YES"}
 var no = []string{"n", "Y", "no", "No", "NO"}
-var gitConfTemplate = template.Must(parseAssets(".gitconf", "templates/.gitconf.tmpl"))
+
+// templates
+// .gitconf
+var gitConfTemplate = template.Must(ParseAsset(".gitconf", "templates/.gitconf.tmpl"))
 var gitConf = Source {
   Name: ".gitconf",
   Template: *gitConfTemplate,
 }
+// .gitconfig
+var gitconfigTemplate = template.Must(ParseAsset(".gitconfig", "templates/.gitconfig.tmpl"))
+var gitconfig = Source {
+  Name: ".gitconfig",
+  Template: *gitconfigTemplate,
+}
+// .gitconfig_global
+var gitconfigGlobalTemplate = template.Must(ParseAsset(".gitconfig_global", "templates/.gitconfig_global.tmpl"))
+var gitconfigGlobal = Source {
+  Name: ".gitconfig_global",
+  Template: *gitconfigGlobalTemplate,
+}
+// .gitconfig.local
+var gitconfigLocalTemplate = template.Must(ParseAsset(".gitconfig.local", "templates/.gitconfig.local.tmpl"))
+var gitconfigLocal = Source {
+  Name: ".gitconfig.local",
+  Template: *gitconfigLocalTemplate,
+}
 
+// methods
 func doInit (c *cli.Context) {
   setUserHomeDir(c.String("dir"))
 }
@@ -170,7 +196,7 @@ func getOsHomeDir () string {
   return os.Getenv("HOME")
 }
 
-func parseAssets (name string, path string) (*template.Template, error) {
+func ParseAsset(name string, path string) (*template.Template, error) {
   src, err := Asset(path)
   if err != nil {
     return nil, err
