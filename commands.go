@@ -90,7 +90,6 @@ var commandList = cli.Command{
 }
 
 // variables
-
 var okay = []string{"y", "Y", "yes", "Yes", "YES"}
 var no = []string{"n", "Y", "no", "No", "NO"}
 
@@ -150,7 +149,7 @@ func doList (c *cli.Context) {
   }
 }
 
-func setUserHomeDir (homeDir ...string) {
+func setUserHomeDir (homeDir ...string) string {
   if len(homeDir) < 1 {
     homeDir = append(homeDir, getOsHomeDir())
   }
@@ -163,6 +162,7 @@ func setUserHomeDir (homeDir ...string) {
     log.Fatal(err)
   }
 
+  return homeDir[0]
 }
 
 func getUserHomeDir () string {
