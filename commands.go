@@ -88,9 +88,6 @@ var no = []string{"n", "Y", "no", "No", "NO"}
 // templates
 type Configuration struct {
   HomeDir string
-}
-
-type Gitconfig struct {
   EnvName string
 }
 
@@ -135,7 +132,7 @@ func doInit (c *cli.Context) {
     }
   } else {
     // create new .gitconfig.local file
-    if error := gitconfigLocal.generate(getUserHomeDir(), ""); error != nil {
+    if error := gitconfigLocal.generate(getUserHomeDir(), Configuration {}); error != nil {
       // errors
       println("Cannot create file: " + home_dir + "/.gitconfig.local")
       log.Fatal(error)
@@ -143,14 +140,17 @@ func doInit (c *cli.Context) {
   }
 
   // create .gitconfig (to include other files) and .gitconfig_global for user global
-  if err := gitconfigGlobal.generate(getOsHomeDir(), ""); err == nil {
+  if err := gitconfigGlobal.generate(getOsHomeDir(), Configuration {}); err == nil {
     println("~/.gitconfig_global is created")
   } else {
     println("Cannot create ~/.gitconfig_global")
     log.Fatal(err)
   }
 
-  envConf := Gitconfig { ".gitconfig.local" }
+  envConf := Configuration {
+    EnvName : "local",
+  }
+
   if err := gitconfig.generate(getOsHomeDir(), envConf); err == nil {
     println("~/.gitconfig is created")
   } else {
@@ -189,7 +189,9 @@ func setUserHomeDir (homeDir ...string) string {
     homeDir = append(homeDir, getOsHomeDir())
   }
 
-  config := Configuration { homeDir[0] }
+  config := Configuration {
+    HomeDir : homeDir[0],
+  }
 
   if err := gitConf.generate(getOsHomeDir(), config); err == nil {
     println("~/.gitconf is created")

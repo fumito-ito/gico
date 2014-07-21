@@ -11,7 +11,7 @@ type Source struct {
     Template template.Template
 }
 
-func (f Source) generate(path string, definition interface{}) error {
+func (f Source) generate(path string, definition Configuration) error {
     wr, err := os.Create(strings.Join([]string{path, f.Name}, "/"))
     if err != nil {
         return err
