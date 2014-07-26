@@ -81,9 +81,6 @@ var commandList = cli.Command{
   Action: doList,
 }
 
-// Constants
-var defaultFileName = ".gitconfig.local"
-
 // templates
 type Configuration struct {
   HomeDir string
@@ -118,15 +115,18 @@ var gitconfigLocal = Source {
 // methods
 func doInit (c *cli.Context) {
   // set user home directory
-  home_dir := setUserHomeDir(c.String("dir"))
-  config_file := getOsHomeDir() + "/.gitconfig" 
+  setUserHomeDir(c.String("dir"))
+  // read user original configuration file
+  var originalFile = getOsHomeDir() + "/.gitconfig"
 
   // rename user global .gitconfig to .gitconfig.local if it exists
-  if file, err := ioutil.ReadFile(config_file); err == nil && isFileExist(config_file) {
+  if file, err := ioutil.ReadFile(originalFile); err == nil && isFileExist(originalFile) {
+    // default config file name
+    var defaultFile = getUserHomeDir() + "/.gitconfig.local"
     // copy .gitconfig to .gitconfig.local
-    if error := ioutil.WriteFile(home_dir + "/" + defaultFileName, file, 0755); error != nil {
+    if error := ioutil.WriteFile(defaultFile, file, 0755); error != nil {
       // errors
-      println("Cannot create file: " + home_dir + "/" + defaultFileName)
+      println("Cannot create file: " + defaultFile)
       log.Fatal(error)
     }
   } else {
@@ -135,9 +135,7 @@ func doInit (c *cli.Context) {
   }
 
   // create .gitconfig (to include other files) and .gitconfig_global for user global
-  if err := gitconfigGlobal.generate(getOsHomeDir(), Configuration {}); err == nil {
-    println("~/.gitconfig_global is created")
-  } else {
+  if err := gitconfigGlobal.generate(getOsHomeDir(), Configuration {}); err != nil {
     println("Cannot create ~/.gitconfig_global")
     log.Fatal(err)
   }
@@ -146,15 +144,13 @@ func doInit (c *cli.Context) {
 }
 
 func doCreate (c *cli.Context) {
-
+  // create configuration file from arguments
   if len(c.Args()) > 0 {
-
-    for _, env_name := range c.Args() {
-      createLocalConfigFile(env_name)
+    for _, envName := range c.Args() {
+      createLocalConfigFile(envName)
       doUse(c)
     }
   } else {
-
     println("Set 1 or more arguments to create config files")
   }
 }
@@ -162,19 +158,19 @@ func doCreate (c *cli.Context) {
 func doDelete (c *cli.Context) {}
 
 func doUse (c *cli.Context) {
-
+  // set configuration file to use by first argument
   if len(c.Args()) > 0 {
+    var envName = c.Args()[0]
+    switchConfigFile(envName)
 
-    var env_name = c.Args()[0]
-    switchConfigFile(env_name)
+    println("Now using [" + envName + "]")
   } else {
-
     println("Set argument to set environment")
   }
 }
 
 func doList (c *cli.Context) {
-  homeDir := getUserHomeDir()
+  var homeDir = getUserHomeDir()
 
   if isDirExist(homeDir) {
     files, _ := ioutil.ReadDir(homeDir)
@@ -189,62 +185,56 @@ func doList (c *cli.Context) {
 }
 
 func createLocalConfigFile (envName string) {
-  var home_dir = getUserHomeDir()
   gitconfigLocal.Name = ".gitconfig." + envName
 
   if error := gitconfigLocal.generate(getUserHomeDir(), Configuration {}); error != nil {
     // errors
-    println("Cannot create file: " + home_dir + "/.gitconfig." + envName)
+    println("Cannot create file: " + getUserHomeDir() + "/.gitconfig." + envName)
     log.Fatal(error)
-  } else {
-    println("create " + gitconfigLocal.Name)
   }
 }
 
 func switchConfigFile (envName string) {
-  envConf := Configuration {
+  var config = Configuration {
     EnvName : envName,
   }
 
-  if err := gitconfig.generate(getOsHomeDir(), envConf); err == nil {
-    println("~/.gitconfig is created")
-  } else {
-    println("Cannot create ~/.gitconfig")
+  if err := gitconfig.generate(getOsHomeDir(), config); err != nil {
+    println("Fialed to switch to " + envName)
     log.Fatal(err)
   }
 }
 
-func setUserHomeDir (homeDir ...string) string {
+func setUserHomeDir (homeDir ...string) {
   if len(homeDir) < 1 {
     homeDir = append(homeDir, getOsHomeDir())
   }
 
-  config := Configuration {
+  var config = Configuration {
     HomeDir : homeDir[0],
   }
 
-  if err := gitConf.generate(getOsHomeDir(), config); err == nil {
-    println("~/.gitconf is created")
-  } else {
+  if err := gitConf.generate(getOsHomeDir(), config); err != nil {
+    println("Fialed to set user home directory")
     log.Fatal(err)
   }
-
-  return homeDir[0]
 }
 
 func getUserHomeDir () string {
-  file, err := ioutil.ReadFile(getOsHomeDir() + "/.gitconf")
+  // read file to find home directory
+  var file, err = ioutil.ReadFile(getOsHomeDir() + "/.gitconf")
 
   if err != nil {
     println("Cannot open file ~/.gitconf", err.Error())
-    os.Exit(1)
+    log.Fatal(err)
   }
 
+  // parse json to configuration to return homeDir value
   var config Configuration
   e := json.Unmarshal(file, &config)
   if e != nil {
     println("Cannot parse .gitconf", err.Error())
-    os.Exit(1)
+    log.Fatal(err)
   }
 
   return config.HomeDir
@@ -252,7 +242,7 @@ func getUserHomeDir () string {
 
 func getOsHomeDir () string {
   if runtime.GOOS == "windows" {
-    home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
+    var home = os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
     if home == "" {
       home = os.Getenv("USERPROFILE")
     }
@@ -264,7 +254,7 @@ func getOsHomeDir () string {
 }
 
 func ParseAsset(name string, path string) (*template.Template, error) {
-  src, err := Asset(path)
+  var src, err = Asset(path)
   if err != nil {
     return nil, err
   }
