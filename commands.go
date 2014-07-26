@@ -81,9 +81,7 @@ var commandList = cli.Command{
   Action: doList,
 }
 
-// variables
-var okay = []string{"y", "Y", "yes", "Yes", "YES"}
-var no = []string{"n", "Y", "no", "No", "NO"}
+// Constants
 var defaultFileName = ".gitconfig.local"
 
 // templates
