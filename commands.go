@@ -176,7 +176,7 @@ func doList (c *cli.Context) {
   if isDirExist(homeDir) {
     files, _ := ioutil.ReadDir(homeDir)
     for _, f := range files {
-      fileName := f.Name()
+      var fileName = f.Name()
 
       if matched, _ := regexp.MatchString("^\\.gitconfig\\..*$", fileName); matched {
         println(strings.Replace(fileName, ".gitconfig.", "", 1))
