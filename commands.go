@@ -115,7 +115,8 @@ var gitconfigLocal = Source {
 // methods
 func doInit (c *cli.Context) {
   // set user home directory
-  setUserHomeDir(c.String("dir"))
+  initializeGitconf(c.String("dir"))
+
   // read user original configuration file
   var originalFile = getOsHomeDir() + "/.gitconfig"
 
@@ -205,13 +206,14 @@ func switchConfigFile (envName string) {
   }
 }
 
-func setUserHomeDir (homeDir ...string) {
+func initializeGitconf (homeDir ...string) {
   if len(homeDir) < 1 {
     homeDir = append(homeDir, getOsHomeDir())
   }
 
   var config = Configuration {
     HomeDir : homeDir[0],
+    EnvName : "local",
   }
 
   if err := gitConf.generate(getOsHomeDir(), config); err != nil {
@@ -221,6 +223,16 @@ func setUserHomeDir (homeDir ...string) {
 }
 
 func getUserHomeDir () string {
+  var config = parseGitconfig()
+  return config.HomeDir
+}
+
+func getUserEnvName () string {
+  var config = parseGitconfig()
+  return config.EnvName
+}
+
+func parseGitconfig () Configuration {
   // read file to find home directory
   var file, err = ioutil.ReadFile(getOsHomeDir() + "/.gitconf")
 
@@ -237,7 +249,7 @@ func getUserHomeDir () string {
     log.Fatal(err)
   }
 
-  return config.HomeDir
+  return config
 }
 
 func getOsHomeDir () string {
