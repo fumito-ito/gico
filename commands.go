@@ -172,6 +172,7 @@ func doUse (c *cli.Context) {
 
 func doList (c *cli.Context) {
   var homeDir = getUserHomeDir()
+  var envName = getUserEnvName()
 
   if isDirExist(homeDir) {
     files, _ := ioutil.ReadDir(homeDir)
@@ -179,7 +180,12 @@ func doList (c *cli.Context) {
       var fileName = f.Name()
 
       if matched, _ := regexp.MatchString("^\\.gitconfig\\..*$", fileName); matched {
-        println(strings.Replace(fileName, ".gitconfig.", "", 1))
+        var env = strings.Replace(fileName, ".gitconfig.", "", 1)
+        if env == envName {
+          println("* " + env)
+        } else {
+          println("  " + env)
+        }
       }
     }
   }
@@ -197,11 +203,17 @@ func createLocalConfigFile (envName string) {
 
 func switchConfigFile (envName string) {
   var config = Configuration {
+    HomeDir : getUserHomeDir(),
     EnvName : envName,
   }
 
   if err := gitconfig.generate(getOsHomeDir(), config); err != nil {
     println("Fialed to switch to " + envName)
+    log.Fatal(err)
+  }
+
+  if err := gitConf.generate(getOsHomeDir(), config); err != nil {
+    println("Failed to switch to " + envName)
     log.Fatal(err)
   }
 }
