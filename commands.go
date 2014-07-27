@@ -208,7 +208,7 @@ func switchConfigFile (envName string) {
   }
 
   if err := gitconfig.generate(getOsHomeDir(), config); err != nil {
-    println("Fialed to switch to " + envName)
+    println("Failed to switch to " + envName)
     log.Fatal(err)
   }
 
@@ -229,7 +229,7 @@ func initializeGitconf (homeDir ...string) {
   }
 
   if err := gitConf.generate(getOsHomeDir(), config); err != nil {
-    println("Fialed to set user home directory")
+    println("Failed to set user home directory")
     log.Fatal(err)
   }
 }
