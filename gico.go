@@ -7,7 +7,7 @@ import (
 
 func main() {
   app := cli.NewApp()
-  app.Name = "gitconf"
+  app.Name = "gico"
   app.Version = Version
   app.Usage = ""
   app.Author = "fumitoito"

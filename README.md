@@ -1,4 +1,4 @@
-gitconf as golang cli
+gico as golang cli
 ====
 
 switch .gitconfig according to your environment

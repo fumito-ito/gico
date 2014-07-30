@@ -87,10 +87,10 @@ type Configuration struct {
   EnvName string
 }
 
-// .gitconf
-var gitConfTemplate = template.Must(ParseAsset(".gitconf", "templates/.gitconf.tmpl"))
+// .gico
+var gitConfTemplate = template.Must(ParseAsset(".gico", "templates/.gico.tmpl"))
 var gitConf = Source {
-  Name: ".gitconf",
+  Name: ".gico",
   Template: *gitConfTemplate,
 }
 // .gitconfig
@@ -246,10 +246,10 @@ func getUserEnvName () string {
 
 func parseGitconfig () Configuration {
   // read file to find home directory
-  var file, err = ioutil.ReadFile(getOsHomeDir() + "/.gitconf")
+  var file, err = ioutil.ReadFile(getOsHomeDir() + "/.gico")
 
   if err != nil {
-    println("Cannot open file ~/.gitconf", err.Error())
+    println("Cannot open file ~/.gico", err.Error())
     log.Fatal(err)
   }
 
@@ -257,7 +257,7 @@ func parseGitconfig () Configuration {
   var config Configuration
   e := json.Unmarshal(file, &config)
   if e != nil {
-    println("Cannot parse .gitconf", err.Error())
+    println("Cannot parse .gico", err.Error())
     log.Fatal(err)
   }
 
