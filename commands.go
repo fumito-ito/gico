@@ -88,10 +88,10 @@ type Configuration struct {
 }
 
 // .gico
-var gitConfTemplate = template.Must(ParseAsset(".gico", "templates/.gico.tmpl"))
-var gitConf = Source {
+var gicoTemplate = template.Must(ParseAsset(".gico", "templates/.gico.tmpl"))
+var gico = Source {
   Name: ".gico",
-  Template: *gitConfTemplate,
+  Template: *gicoTemplate,
 }
 // .gitconfig
 var gitconfigTemplate = template.Must(ParseAsset(".gitconfig", "templates/.gitconfig.tmpl"))
@@ -115,7 +115,7 @@ var gitconfigLocal = Source {
 // methods
 func doInit (c *cli.Context) {
   // set user home directory
-  initializeGitconf(c.String("dir"))
+  initializeGico(c.String("dir"))
 
   // read user original configuration file
   var originalFile = getOsHomeDir() + "/.gitconfig"
@@ -212,13 +212,13 @@ func switchConfigFile (envName string) {
     log.Fatal(err)
   }
 
-  if err := gitConf.generate(getOsHomeDir(), config); err != nil {
+  if err := gico.generate(getOsHomeDir(), config); err != nil {
     println("Failed to switch to " + envName)
     log.Fatal(err)
   }
 }
 
-func initializeGitconf (homeDir ...string) {
+func initializeGico (homeDir ...string) {
   if len(homeDir) < 1 {
     homeDir = append(homeDir, getOsHomeDir())
   }
@@ -228,7 +228,7 @@ func initializeGitconf (homeDir ...string) {
     EnvName : "local",
   }
 
-  if err := gitConf.generate(getOsHomeDir(), config); err != nil {
+  if err := gico.generate(getOsHomeDir(), config); err != nil {
     println("Failed to set user home directory")
     log.Fatal(err)
   }
