@@ -25,7 +25,7 @@ var commandInit = cli.Command{
   Usage: "Initial setup",
   Description: `
   Initial setup for your .gitconfig environment.
-  This command creates $HOME/dotfiles directory if it doesn't exist.
+  This command creates $HOME/.gico and $HOME/.gitconfig.local file if it doesn't exist.
   `,
   Action: doInit,
   Flags: []cli.Flag {
@@ -38,7 +38,7 @@ var commandCreate = cli.Command{
   Usage: "Create new .gitconfig",
   Description: `
   Create new .gitconfig environment files.
-  This command creates some files in $HOME/dotfiles/[env name].
+  This command creates .gitconfig.[env name] file in $HOME.
   
   If you want to override existing env, you have to use -f option.
   `,
@@ -50,7 +50,7 @@ var commandDelete = cli.Command{
   Usage: "Delete .gitconfig file",
   Description: `
   Delete your .gitconfig environment files.
-  This command deletes $HOME/dotfiles/[env name] directory.
+  This command deletes $HOME/.gitconfig.[env name] file.
   `,
   Action: doDelete,
 }
@@ -64,7 +64,7 @@ var commandUse = cli.Command{
   
   If you want to use git without any environment, you run
   
-  gitconf switch default
+  gico switch default
   
   It will return default .gitconfig.
   `,
