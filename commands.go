@@ -156,7 +156,21 @@ func doCreate (c *cli.Context) {
   }
 }
 
-func doDelete (c *cli.Context) {}
+func doDelete (c *cli.Context) {
+  // delete configuration file from arguemnts
+  if len(c.Args()) > 0 {
+    var homeDir = getUserHomeDir()
+    var envName = c.Args()[0]
+
+    if err := os.Remove(homeDir + "/.gitconfig." + envName); err != nil {
+      log.Fatal(err)
+    }
+
+    println("[" + envName + "] config file is deleted")
+  } else {
+    println("Set arguemnt to delete environment")
+  }
+}
 
 func doUse (c *cli.Context) {
   // set configuration file to use by first argument
