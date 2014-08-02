@@ -1,3 +1,6 @@
+/*
+  main package contains all commands and dependencies.
+*/
 package main
 
 import (
